@@ -22,8 +22,9 @@ portfolio/
 
 ## 배포
 
-`main` 브랜치에 푸시하면 GitHub Actions가 자동으로 Pages에 배포합니다.
-최초 1회 저장소 **Settings → Pages → Source: GitHub Actions** 설정이 필요할 수 있습니다.
+- 공개 주소: **https://wongnd.github.io/portfolio/**
+- `main` 브랜치에 푸시하면 GitHub Actions가 `gh-pages` 브랜치로 동기화하고, Pages가 자동으로 재배포합니다.
+- 반영까지 보통 1~2분 걸립니다.
 
 ---
 

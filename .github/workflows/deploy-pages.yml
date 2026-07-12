@@ -1,5 +1,6 @@
 # GitHub Pages 자동 배포 워크플로
-# main 브랜치에 푸시될 때마다 정적 사이트를 GitHub Pages로 배포한다.
+# main 브랜치에 푸시하면 gh-pages 브랜치로 동기화한다.
+# (Pages 소스가 gh-pages 브랜치로 설정되어 있어, 동기화되면 자동으로 사이트에 반영됨)
 name: Deploy to GitHub Pages
 
 on:
@@ -8,9 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: pages
@@ -19,17 +18,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # enablement: true — Pages가 꺼져 있으면 자동으로 활성화 시도
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: main 내용을 gh-pages로 동기화
+        run: git push origin HEAD:gh-pages --force
