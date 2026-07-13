@@ -2,29 +2,45 @@
 
 곽원용 — 전장 디스플레이 HW설계 엔지니어 포트폴리오.
 
-- **웹**: GitHub Pages로 호스팅되는 단일 페이지 (`index.html`)
-- **PDF**: 페이지 우측 하단 "PDF로 저장" 버튼 (또는 브라우저 인쇄 → PDF 저장) 으로 A4 인쇄용 문서 생성
+- **웹**: GitHub Pages로 호스팅되는 정적 사이트
+- **PDF**: 각 페이지의 "PDF로 저장" 버튼 (브라우저 인쇄 → PDF 저장) 으로 A4 문서 생성
 
 ## 구조
 
 ```
 portfolio/
-├── index.html                        # 포트폴리오 본문 (내용 수정은 이 파일에서)
-└── .github/workflows/deploy-pages.yml  # main 푸시 시 GitHub Pages 자동 배포
+├── index.html                # 포트폴리오 메인 (KPI · STAR 프로젝트 · 역량 · 경력)
+├── cover-letter.html         # 자기소개서 페이지 (틀 — 본문은 아래 md에서 로드)
+├── content/
+│   └── cover-letter.md       # ★ 자기소개서 본문 (내용 수정은 이 파일만)
+└── .github/workflows/deploy-pages.yml  # main 푸시 시 gh-pages로 자동 배포
 ```
 
-## 내용 수정 방법
+## 내용 수정 방법 (소유자 전용)
 
-`index.html` 안에 `[수정 포인트]` 주석이 달린 위치만 고치면 됩니다.
+수정 권한은 이 저장소에 커밋할 수 있는 사람 = 저장소 소유자에게만 있습니다.
+사이트의 "✏️ 수정" 버튼이 GitHub 편집 화면을 열어주며, 로그인·권한이 없으면 저장할 수 없습니다.
 
-- 연락처: `<header>` 내 `.contact` 부분
-- AI 툴 상세: "대표 프로젝트" 섹션의 주석 처리된 목록 형식 참고
+- **자기소개서**: `content/cover-letter.md` 를 GitHub 웹 편집기(연필 아이콘)에서 수정 → Commit.
+  마크다운 문법(`##` 제목, `**굵게**`, `-` 목록)만 알면 되고, `<!-- -->` 주석은 사이트에 표시되지 않습니다.
+- **포트폴리오 본문**: `index.html` 안의 `[수정 포인트]` 주석 위치를 수정.
+- 커밋하면 1~2분 내 사이트에 자동 반영됩니다.
 
 ## 배포
 
 - 공개 주소: **https://wongnd.github.io/portfolio/**
 - `main` 브랜치에 푸시하면 GitHub Actions가 `gh-pages` 브랜치로 동기화하고, Pages가 자동으로 재배포합니다.
 - 반영까지 보통 1~2분 걸립니다.
+
+## URL(저장소 이름/도메인) 변경 시 체크리스트
+
+사이트 내부 링크는 전부 상대경로라 URL이 바뀌어도 그대로 동작합니다. 아래만 확인하세요.
+
+1. **저장소 이름 변경** (Settings → General → Rename): Pages 주소가 `wongnd.github.io/<새이름>/` 으로 자동 변경됨.
+2. `cover-letter.html` 상단 스크립트의 `var REPO = "WonGND/portfolio"` 를 새 이름으로 수정 (✏️ 수정 버튼 링크용).
+3. `index.html` 푸터의 "사이트 수정" 링크 주소 수정.
+4. 이 README의 공개 주소 갱신.
+5. **커스텀 도메인**을 쓸 경우: Settings → Pages → Custom domain 에 도메인 입력 (저장소에 `CNAME` 파일이 자동 생성됨). 1~4는 동일.
 
 ---
 
