@@ -8,19 +8,22 @@
 <style>
   /* ==========================================================
      곽원용 포트폴리오 — 단일 파일 정적 사이트
-     내용 수정은 아래 HTML 본문에서 직접 하시면 됩니다.
-     (수정이 필요한 위치마다 [수정 포인트] 주석을 달아두었습니다)
+     구성: 포지셔닝+핵심 수치 → STAR 케이스 스터디 → 역량 → 경력
+     내용 수정은 [수정 포인트] 주석 위치에서 하시면 됩니다.
      ========================================================== */
   :root {
     --bg: #f7f8fa;
     --surface: #ffffff;
     --text: #1a2233;
     --text-sub: #55637a;
+    --text-muted: #8a96ab;
     --accent: #1d63d8;
+    --accent-deep: #1450b4;
     --accent-soft: #e8f0fd;
     --border: #e3e7ee;
     --tag-bg: #eef1f6;
     --shadow: 0 1px 3px rgba(20, 30, 55, .06), 0 4px 16px rgba(20, 30, 55, .05);
+    --shadow-lift: 0 4px 10px rgba(20, 30, 55, .09), 0 12px 32px rgba(20, 30, 55, .09);
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -28,15 +31,18 @@
       --surface: #181e29;
       --text: #e6eaf2;
       --text-sub: #9aa7bd;
+      --text-muted: #6b7891;
       --accent: #6ba3f5;
+      --accent-deep: #8db8f8;
       --accent-soft: #1c2b45;
       --border: #27303f;
       --tag-bg: #222a38;
       --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+      --shadow-lift: 0 4px 10px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
     }
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 72px; }
   body {
     font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
     background: var(--bg);
@@ -44,156 +50,409 @@
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
-  /* ---------- 헤더 ---------- */
-  header { padding: 72px 0 48px; }
+  /* ---------- 상단 고정 내비게이션 ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+  nav.scrolled { border-bottom-color: var(--border); box-shadow: 0 2px 12px rgba(20,30,55,.06); }
+  .nav-inner { display: flex; align-items: center; gap: 8px; height: 56px; }
+  .nav-name { font-weight: 800; font-size: 1rem; margin-right: auto; letter-spacing: -.01em; }
+  .nav-link {
+    font-size: .87rem; font-weight: 600; color: var(--text-sub); text-decoration: none;
+    padding: 6px 12px; border-radius: 8px; transition: color .18s, background .18s;
+  }
+  .nav-link:hover { color: var(--accent); background: var(--accent-soft); }
+  .nav-link.active { color: var(--accent); background: var(--accent-soft); }
+  @media (max-width: 640px) { .nav-link { display: none; } .nav-link.nav-contact { display: inline-block; } }
+
+  /* ---------- 헤더(포지셔닝) ---------- */
+  header { padding: 64px 0 36px; }
   .role-badge {
     display: inline-block;
-    background: var(--accent-soft);
-    color: var(--accent);
-    font-size: .82rem;
-    font-weight: 600;
-    padding: 5px 14px;
-    border-radius: 999px;
-    margin-bottom: 18px;
-    letter-spacing: .02em;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: .82rem; font-weight: 600; padding: 5px 14px; border-radius: 999px;
+    margin-bottom: 18px; letter-spacing: .02em;
   }
-  h1 { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; }
-  .headline {
-    font-size: 1.15rem;
-    color: var(--text-sub);
-    margin-top: 10px;
-    max-width: 620px;
+  h1 { font-size: 2.15rem; font-weight: 800; letter-spacing: -.02em; }
+  .headline { font-size: 1.15rem; color: var(--text-sub); margin-top: 12px; max-width: 640px; }
+  .headline strong { color: var(--text); font-weight: 700; }
+  .contact { margin-top: 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: inherit; font-size: .93rem; font-weight: 700; text-decoration: none;
+    padding: 10px 20px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--accent);
+    box-shadow: var(--shadow);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
   }
-  .headline strong { color: var(--text); font-weight: 600; }
-  .contact { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-  .contact a {
-    color: var(--accent); text-decoration: none; font-weight: 600; font-size: .95rem;
-    border: 1px solid var(--border); border-radius: 8px; padding: 8px 16px;
-    background: var(--surface); box-shadow: var(--shadow);
+  .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--accent); }
+  .btn:active { transform: translateY(0) scale(.97); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- KPI 스탯 타일 ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 8px 0 0; }
+  @media (max-width: 720px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; box-shadow: var(--shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
   }
-  .contact a:hover { border-color: var(--accent); }
+  .stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+  .stat .label { font-size: .8rem; font-weight: 600; color: var(--text-sub); }
+  .stat .value { font-size: 1.9rem; font-weight: 700; letter-spacing: -.01em; margin-top: 2px; }
+  .stat .value .unit { font-size: 1rem; font-weight: 700; color: var(--text-sub); margin-left: 2px; }
+  .stat .note { font-size: .74rem; color: var(--text-muted); margin-top: 2px; }
 
   /* ---------- 공통 섹션 ---------- */
-  section { margin-bottom: 56px; }
+  section { margin: 60px 0; }
   h2 {
     font-size: 1.35rem; font-weight: 800; letter-spacing: -.01em;
-    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
   }
   h2::before {
     content: ""; display: inline-block; width: 5px; height: 22px;
     background: var(--accent); border-radius: 3px;
   }
+  .sec-desc { color: var(--text-sub); font-size: .93rem; margin-bottom: 20px; }
   .card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 14px; padding: 26px 28px; box-shadow: var(--shadow);
   }
-  .card + .card { margin-top: 16px; }
   .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .tag {
     background: var(--tag-bg); color: var(--text-sub);
     font-size: .8rem; font-weight: 600; padding: 4px 12px; border-radius: 999px;
   }
 
-  /* ---------- 핵심 역량 ---------- */
-  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  @media (max-width: 720px) { .grid3 { grid-template-columns: 1fr; } }
-  .skill-card h3 { font-size: 1.02rem; margin-bottom: 10px; color: var(--accent); }
-  .skill-card ul { list-style: none; }
-  .skill-card li {
-    font-size: .9rem; color: var(--text-sub); padding-left: 16px; position: relative; margin-bottom: 6px;
+  /* ---------- 스크롤 리빌 (JS 있을 때만) ---------- */
+  body.js .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s ease, transform .6s ease; }
+  body.js .reveal.shown { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    body.js .reveal { opacity: 1; transform: none; transition: none; }
+    * { animation: none !important; }
   }
-  .skill-card li::before { content: "·"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
 
-  /* ---------- 프로젝트 ---------- */
+  /* ---------- 프로젝트 필터 ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .filter-btn {
+    font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
+    padding: 8px 16px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-sub);
+    transition: all .18s ease;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .filter-btn:active { transform: scale(.95); }
+
+  /* ---------- 프로젝트 카드 (STAR) ---------- */
+  .proj {
+    margin-bottom: 16px; overflow: hidden;
+    transition: transform .3s ease, opacity .3s ease, box-shadow .2s ease;
+  }
+  .proj.hide { display: none; }
+  .proj.appear { animation: cardIn .35s ease both; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+  .proj:hover { box-shadow: var(--shadow-lift); }
   .proj-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: baseline; }
   .proj-head h3 { font-size: 1.12rem; font-weight: 700; }
   .period { font-size: .85rem; color: var(--text-sub); white-space: nowrap; font-weight: 600; }
   .proj-sub { font-size: .9rem; color: var(--accent); font-weight: 600; margin-top: 4px; }
-  .proj-body { margin-top: 14px; }
-  .proj-body ul { list-style: none; }
-  .proj-body li {
-    padding-left: 18px; position: relative; margin-bottom: 8px; font-size: .95rem; color: var(--text);
-  }
-  .proj-body li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
+  .proj-summary { margin-top: 12px; font-size: .95rem; color: var(--text-sub); }
   .impact {
-    margin-top: 16px; background: var(--accent-soft); border-radius: 10px;
-    padding: 12px 16px; font-size: .92rem; font-weight: 600; color: var(--accent);
+    margin-top: 14px; background: var(--accent-soft); border-radius: 10px;
+    padding: 12px 16px; font-size: .92rem; font-weight: 600; color: var(--accent-deep);
   }
-  .featured { border: 1.5px solid var(--accent); }
   .featured-label {
     display: inline-block; font-size: .75rem; font-weight: 700; color: var(--accent);
     background: var(--accent-soft); padding: 3px 10px; border-radius: 999px; margin-bottom: 10px;
     letter-spacing: .04em;
   }
+  .featured { border: 1.5px solid var(--accent); }
 
-  /* ---------- 경력/학력 표 ---------- */
-  .info-row { display: flex; gap: 20px; padding: 14px 0; border-bottom: 1px solid var(--border); }
-  .info-row:last-child { border-bottom: none; }
-  .info-row .when { flex: 0 0 170px; font-size: .88rem; color: var(--text-sub); font-weight: 600; }
-  .info-row .what { flex: 1; font-size: .95rem; }
-  .info-row .what b { font-weight: 700; }
-  .info-row .what span { display: block; font-size: .87rem; color: var(--text-sub); margin-top: 2px; }
-  @media (max-width: 560px) {
-    .info-row { flex-direction: column; gap: 2px; }
-    .info-row .when { flex: none; }
+  /* STAR 펼침 */
+  .star-toggle {
+    margin-top: 16px; width: 100%; text-align: left;
+    font-family: inherit; font-size: .88rem; font-weight: 700; cursor: pointer;
+    padding: 11px 16px; border-radius: 10px;
+    border: 1px dashed var(--border); background: transparent; color: var(--accent);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background .18s ease, border-color .18s ease;
   }
+  .star-toggle:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .star-toggle .chev { transition: transform .3s ease; font-size: .8rem; }
+  .star-toggle[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .star-panel { max-height: 0; overflow: hidden; transition: max-height .45s ease; }
+  .star-grid { display: grid; gap: 10px; padding-top: 16px; }
+  .star-row {
+    display: grid; grid-template-columns: 96px 1fr; gap: 14px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 13px 16px;
+  }
+  @media (max-width: 560px) { .star-row { grid-template-columns: 1fr; gap: 4px; } }
+  .star-k { font-size: .8rem; font-weight: 800; color: var(--accent); letter-spacing: .03em; }
+  .star-k small { display: block; font-weight: 600; color: var(--text-muted); letter-spacing: 0; }
+  .star-v { font-size: .92rem; color: var(--text); }
+  .star-v ul { list-style: none; }
+  .star-v li { padding-left: 14px; position: relative; margin-bottom: 5px; }
+  .star-v li::before { content: "·"; position: absolute; left: 2px; color: var(--accent); font-weight: 800; }
+
+  /* ---------- 역량 ---------- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 720px) { .grid3 { grid-template-columns: 1fr; } }
+  .skill-card h3 { font-size: 1.02rem; margin-bottom: 10px; color: var(--accent); }
+  .skill-card ul { list-style: none; }
+  .skill-card li { font-size: .9rem; color: var(--text-sub); padding-left: 16px; position: relative; margin-bottom: 6px; }
+  .skill-card li::before { content: "·"; position: absolute; left: 4px; color: var(--accent); font-weight: 800; }
+
+  /* ---------- 경력 타임라인 ---------- */
+  .timeline { position: relative; padding-left: 26px; }
+  .timeline::before {
+    content: ""; position: absolute; left: 7px; top: 6px; bottom: 6px;
+    width: 2px; background: var(--border); border-radius: 1px;
+  }
+  .tl-item { position: relative; padding: 0 0 22px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ""; position: absolute; left: -25px; top: 7px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--surface);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+  .tl-when { font-size: .82rem; font-weight: 700; color: var(--accent); }
+  .tl-what { font-size: .98rem; font-weight: 700; margin-top: 2px; }
+  .tl-desc { font-size: .88rem; color: var(--text-sub); margin-top: 2px; }
+
+  /* ---------- 연락 CTA ---------- */
+  .cta-card { text-align: center; padding: 40px 28px; }
+  .cta-card h2 { justify-content: center; }
+  .cta-card h2::before { display: none; }
+  .cta-card p { color: var(--text-sub); margin: 8px 0 20px; }
 
   /* ---------- 푸터 ---------- */
-  footer {
-    border-top: 1px solid var(--border); padding: 32px 0 48px;
-    font-size: .85rem; color: var(--text-sub); text-align: center;
-  }
+  footer { border-top: 1px solid var(--border); padding: 30px 0 46px; font-size: .85rem; color: var(--text-sub); text-align: center; }
   footer a { color: var(--accent); text-decoration: none; }
 
-  /* ---------- PDF 저장 버튼 ---------- */
+  /* ---------- PDF 저장 버튼(플로팅) ---------- */
   .print-btn {
-    position: fixed; right: 24px; bottom: 24px;
+    position: fixed; right: 24px; bottom: 24px; z-index: 60;
     background: var(--accent); color: #fff; border: none; cursor: pointer;
-    font-size: .9rem; font-weight: 700; padding: 12px 20px; border-radius: 999px;
+    font-family: inherit; font-size: .9rem; font-weight: 700; padding: 12px 20px; border-radius: 999px;
     box-shadow: 0 4px 14px rgba(29, 99, 216, .35);
-    font-family: inherit;
+    transition: transform .18s ease, filter .18s ease;
   }
-  .print-btn:hover { filter: brightness(1.08); }
+  .print-btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+  .print-btn:active { transform: scale(.95); }
 
-  /* ---------- 인쇄(PDF) 스타일 ---------- */
+  /* ---------- 인쇄(PDF) ---------- */
   @media print {
     :root {
-      --bg: #ffffff; --surface: #ffffff; --text: #111; --text-sub: #444;
-      --accent: #1d63d8; --accent-soft: #eef3fb; --border: #ccc; --tag-bg: #f0f0f0;
-      --shadow: none;
+      --bg: #ffffff; --surface: #ffffff; --text: #111; --text-sub: #444; --text-muted: #666;
+      --accent: #1d63d8; --accent-deep: #1450b4; --accent-soft: #eef3fb; --border: #ccc; --tag-bg: #f0f0f0;
+      --shadow: none; --shadow-lift: none;
     }
     body { font-size: 12px; }
-    .print-btn { display: none; }
-    header { padding: 12px 0 20px; }
-    section { margin-bottom: 24px; page-break-inside: avoid; }
+    nav, .print-btn, .filters, .star-toggle, .cta-card .btn { display: none !important; }
+    body.js .reveal { opacity: 1 !important; transform: none !important; }
+    .proj.hide { display: block !important; }
+    .star-panel { max-height: none !important; overflow: visible !important; }
+    header { padding: 8px 0 16px; }
+    section { margin: 22px 0; page-break-inside: avoid; }
     .card { box-shadow: none; page-break-inside: avoid; padding: 16px 18px; }
-    @page { size: A4; margin: 14mm; }
+    .stats { gap: 8px; }
+    @page { size: A4; margin: 13mm; }
   }
 </style>
 </head>
 <body>
+<script>document.body.classList.add('js');</script>
+
+<!-- ===================== 내비게이션 ===================== -->
+<nav id="nav">
+  <div class="wrap nav-inner">
+    <span class="nav-name">곽원용</span>
+    <a class="nav-link" href="#projects">프로젝트</a>
+    <a class="nav-link" href="#skills">역량</a>
+    <a class="nav-link" href="#career">경력</a>
+    <a class="nav-link nav-contact" href="#contact">연락하기</a>
+  </div>
+</nav>
 
 <div class="wrap">
 
-  <!-- ===================== 헤더 ===================== -->
+  <!-- ===================== 헤더: 한 줄 포지셔닝 + 핵심 수치 ===================== -->
   <header>
     <span class="role-badge">전장 디스플레이 HW설계 엔지니어 · 4년차</span>
     <h1>곽원용</h1>
     <p class="headline">
-      전장 디스플레이 모듈(LCM)의 <strong>개발 → 검증 → 양산 이관 전 과정</strong>을 담당해 왔습니다.
-      반복되는 측정·데이터 업무는 <strong>Python과 AI로 자동화</strong>해 팀 전체의 업무 시간을 줄이는 엔지니어입니다.
+      전장 디스플레이 모듈(LCM)의 <strong>개발 → 검증 → 양산 이관 전 과정</strong>을 주도해 왔고,
+      반복 업무는 <strong>Python과 AI로 자동화</strong>해 팀 전체의 시간을 줄이는 엔지니어입니다.
     </p>
     <div class="contact">
       <!-- [수정 포인트] 연락처 변경 시 여기만 수정 -->
-      <a href="mailto:kkwy1026@naver.com">kkwy1026@naver.com</a>
+      <a class="btn btn-primary" href="mailto:kkwy1026@naver.com">✉ 이메일 보내기</a>
+      <button class="btn" onclick="window.print()">🖨 PDF로 저장</button>
     </div>
   </header>
 
+  <!-- 핵심 성과 수치 (스크롤 시 카운트업) -->
+  <div class="stats reveal">
+    <div class="stat"><div class="label">전장 디스플레이 HW 경력</div><div class="value"><span class="count" data-to="4">0</span><span class="unit">년차</span></div><div class="note">개발–검증–양산 이관 전 과정</div></div>
+    <div class="stat"><div class="label">양산 이관 완수 모델</div><div class="value"><span class="count" data-to="11">0</span><span class="unit">개</span></div><div class="note">공조기 컨트롤러 파생 모델</div></div>
+    <div class="stat"><div class="label">개발·배포한 자동화 툴</div><div class="value"><span class="count" data-to="5">0</span><span class="unit">종</span></div><div class="note">Python + LLM, 부서 전체 배포</div></div>
+    <div class="stat"><div class="label">반복 업무 절감</div><div class="value">월 <span class="count" data-to="8">0</span><span class="unit">시간</span></div><div class="note">1인당, 휴먼 에러 감소 동반</div></div>
+  </div>
+
+  <!-- ===================== 핵심 프로젝트 (STAR 케이스 스터디) ===================== -->
+  <section id="projects" class="reveal">
+    <h2>핵심 프로젝트</h2>
+    <p class="sec-desc">각 프로젝트는 상황(S) → 과제(T) → 행동(A) → 성과(R) 구조로 정리했습니다. 카드를 눌러 상세를 확인하세요.</p>
+
+    <div class="filters" role="group" aria-label="프로젝트 필터">
+      <button class="filter-btn active" data-filter="all">전체</button>
+      <button class="filter-btn" data-filter="ai">AI · 자동화</button>
+      <button class="filter-btn" data-filter="mp">개발 · 양산 이관</button>
+      <button class="filter-btn" data-filter="adv">선행 개발</button>
+    </div>
+
+    <!-- 프로젝트 1: AI 자동화 (FEATURED) -->
+    <div class="card proj featured" data-cat="ai">
+      <span class="featured-label">FEATURED</span>
+      <div class="proj-head">
+        <h3>측정 데이터 자동화 툴 5종 개발 · 부서 배포</h3>
+        <span class="period">2025 ~ 현재</span>
+      </div>
+      <p class="proj-sub">Python + LLM 활용 사내 업무 자동화 · 기획부터 배포까지 단독 수행</p>
+      <p class="proj-summary">개발 단계 검증(EVENT)마다 반복되던 측정 데이터 수작업을 자동화해 1인당 월 약 8시간을 절감하고, 경영진 시연을 거쳐 사내 확산을 추진한 프로젝트입니다.</p>
+      <div class="impact">✦ 1인당 월 약 8시간 절감 · 휴먼 에러 감소 · 데이터 양식 통일 · 경영진 시연 후 사내 배포 추진</div>
+      <button class="star-toggle" aria-expanded="false"><span>상세 보기 — 상황 · 과제 · 행동 · 성과</span><span class="chev">▼</span></button>
+      <div class="star-panel">
+        <div class="star-grid">
+          <div class="star-row"><div class="star-k">S <small>상황</small></div><div class="star-v">DV/PV 검증 EVENT마다 측정 데이터의 정리·비교·시각화가 전부 수작업으로 반복됐고, 엔지니어들이 검증 본연의 업무에 쓸 시간이 부족했습니다. 담당자마다 정리 양식이 달라 비교·추적도 어려웠습니다.</div></div>
+          <div class="star-row"><div class="star-k">T <small>과제</small></div><div class="star-v">"측정과 판단은 사람이, 정리는 도구가"를 목표로, 별도 개발 조직 없이 실무자가 직접 쓸 수 있는 자동화 도구를 만드는 것. 지시받은 업무가 아니라 문제를 느끼고 스스로 설정한 과제였습니다.</div></div>
+          <div class="star-row"><div class="star-k">A <small>행동</small></div><div class="star-v"><ul>
+            <li>Python과 LLM(Claude·ChatGPT·Gemini)을 활용해 데이터 정리 → 분석·비교 → 시각화를 자동화하는 툴을 개발</li>
+            <li>가장 반복이 심한 업무부터 툴 1종을 만들어 배포하고, 부서원 피드백을 반영해 총 5종으로 확장</li>
+            <li>사용 매뉴얼을 만들어 배포하고, 경영진(CTO 참석 회의) 대상 시연 발표 진행</li>
+            <li>이후에도 단순 반복 업무는 요청 즉시 소형 자동화 툴로 제작해 대응</li>
+            <!-- [수정 포인트] 각 툴의 이름/기능을 공개해도 된다면 여기에 한 줄씩 추가하세요 -->
+          </ul></div></div>
+          <div class="star-row"><div class="star-k">R <small>성과</small></div><div class="star-v">1인당 월 약 8시간의 반복 업무 시간 절감, 수작업 휴먼 에러 감소, 부서 데이터 양식 통일. 사용 매뉴얼과 함께 사내 배포를 추진 중이며, 이 경험으로 "문제 발견 → 도구화 → 확산"의 개선 사이클을 체득했습니다.</div></div>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">Python</span><span class="tag">Claude Code</span><span class="tag">LLM</span><span class="tag">데이터 시각화</span><span class="tag">업무 자동화</span></div>
+    </div>
+
+    <!-- 프로젝트 2: 12.9" AVN -->
+    <div class="card proj" data-cat="mp">
+      <div class="proj-head">
+        <h3>12.9인치 전장 AVN 디스플레이 개발 및 양산 이관</h3>
+        <span class="period">2025.01 ~ 현재</span>
+      </div>
+      <p class="proj-sub">하드웨어 주 담당자 · 국내 완성차 OEM향</p>
+      <p class="proj-summary">신규 전장 AVN 모델의 하드웨어 주 담당자로서 DV/PV 검증부터 양산 이관까지 개발 전 과정을 주도했습니다.</p>
+      <div class="impact">✦ 개발 초기부터 양산 이관까지 전장 개발 프로세스 전 과정 주도 · 평가시트 체계화로 검증 표준화</div>
+      <button class="star-toggle" aria-expanded="false"><span>상세 보기 — 상황 · 과제 · 행동 · 성과</span><span class="chev">▼</span></button>
+      <div class="star-panel">
+        <div class="star-grid">
+          <div class="star-row"><div class="star-k">S <small>상황</small></div><div class="star-v">국내 완성차 OEM향 12.9인치 AVN 디스플레이 신규 개발 프로젝트. 기능안전 요구사항 충족과 단계별 검증(DV/PV)이 필수였고, FW·부품 변경이 잦아 변경점 관리가 핵심이었습니다.</div></div>
+          <div class="star-row"><div class="star-k">T <small>과제</small></div><div class="star-v">하드웨어 주 담당자로서 광학·전기적 특성·Fault 검출을 검증하고, 각 단계 EVENT를 이슈 없이 통과시켜 양산 이관까지 완수하는 것.</div></div>
+          <div class="star-row"><div class="star-k">A <small>행동</small></div><div class="star-v"><ul>
+            <li>DV/PV 단계별 EVENT에 대응하고, 변경점 발생 시마다 변경 기능에 대한 재검증 프로세스 수행</li>
+            <li>오실로스코프로 전기적 특성을, 휘도·색좌표 상관관계로 광학 특성을 검증하고 제품 평가시트로 체계화</li>
+            <li>FW 변경 시마다 Fault 동작을 직접 검증해 발생 조건·동작 상태를 파악, Tier 1에 가이드라인 제공</li>
+            <li>화면 분할·Ghost touch 등 복합 이슈는 부품과 시스템 측면을 종합해 근본 원인을 추론하고 협력사 합동 검증으로 신속 종결</li>
+          </ul></div></div>
+          <div class="star-row"><div class="star-k">R <small>성과</small></div><div class="star-v">기능안전 요구사항을 충족하며 각 개발 단계를 통과, 양산 이관 단계까지 주도. 평가시트 체계화로 후속 모델에서도 재사용 가능한 검증 기준을 남겼습니다.</div></div>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">전장 AVN</span><span class="tag">DV/PV</span><span class="tag">기능안전</span><span class="tag">Tier 1 협업</span><span class="tag">신뢰성 시험</span></div>
+    </div>
+
+    <!-- 프로젝트 3: 공조기 11모델 -->
+    <div class="card proj" data-cat="mp">
+      <div class="proj-head">
+        <h3>전장 공조기 컨트롤러 파생 11개 모델 양산 이관</h3>
+        <span class="period">2023.05 ~ 2025.02</span>
+      </div>
+      <p class="proj-sub">양산 이관 · 공정 개선 · 불량 분석</p>
+      <p class="proj-summary">파생 모델 11개를 병행 관리하며 양산 이관을 완수하고, 검사 프로그램 개선으로 공정 시간을 단축했습니다.</p>
+      <div class="impact">✦ 11개 모델 양산 이관 완수 · 검사 프로그램 개선으로 공정 ST 약 8% 단축</div>
+      <button class="star-toggle" aria-expanded="false"><span>상세 보기 — 상황 · 과제 · 행동 · 성과</span><span class="chev">▼</span></button>
+      <div class="star-panel">
+        <div class="star-grid">
+          <div class="star-row"><div class="star-k">S <small>상황</small></div><div class="star-v">기존 양산 모델에서 파생된 다수 모델을 순차적으로 양산 라인에 이관해야 했고, 모델별 검사 조건과 불량 유형이 조금씩 달라 관리 부담이 컸습니다.</div></div>
+          <div class="star-row"><div class="star-k">T <small>과제</small></div><div class="star-v">파생 모델 11개의 양산 이관을 지연 없이 완수하면서, 생산성(공정 사이클 타임)도 함께 개선하는 것.</div></div>
+          <div class="star-row"><div class="star-k">A <small>행동</small></div><div class="star-v"><ul>
+            <li>모델별 이관 체크리스트를 운영하며 다수 모델을 병행 관리</li>
+            <li>검사 프로그램을 개선해 공정 사이클 타임(ST) 단축</li>
+            <li>이관 과정에서 발생한 불량을 분석·개선하며 증상 기반 원인 추론 역량 축적</li>
+          </ul></div></div>
+          <div class="star-row"><div class="star-k">R <small>성과</small></div><div class="star-v">11개 모델 양산 이관 완수, 공정 ST 약 8% 단축으로 생산성 향상. 다수 모델 병행 관리 프로세스를 체득해 이후 신규 모델 주담당 업무의 기반이 됐습니다.</div></div>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">양산 이관</span><span class="tag">공정 개선</span><span class="tag">다중 모델 관리</span></div>
+    </div>
+
+    <!-- 프로젝트 4: 수율 안정화 -->
+    <div class="card proj" data-cat="mp">
+      <div class="proj-head">
+        <h3>2세대 전장 디스플레이 양산 초기 공장 수율 안정화</h3>
+        <span class="period">2023.08 ~ 2023.11</span>
+      </div>
+      <p class="proj-sub">12.3인치 Cluster + 12.3인치 AVN · 불량 분석</p>
+      <p class="proj-summary">양산 초기 불량을 현장에서 분석해 선제적으로 해결하고, 불량 분석 백서로 문서화해 수율을 안정화했습니다.</p>
+      <div class="impact">✦ 공정 불량 원인 선제 해결로 수율 안정화 · 불량 분석 백서 제작으로 지식 자산화</div>
+      <button class="star-toggle" aria-expanded="false"><span>상세 보기 — 상황 · 과제 · 행동 · 성과</span><span class="chev">▼</span></button>
+      <div class="star-panel">
+        <div class="star-grid">
+          <div class="star-row"><div class="star-k">S <small>상황</small></div><div class="star-v">2세대 전장 디스플레이(12.3인치 Cluster + AVN)의 양산 초기, 생산 현장과 필드에서 다양한 초기 불량이 발생해 수율이 불안정했습니다.</div></div>
+          <div class="star-row"><div class="star-k">T <small>과제</small></div><div class="star-v">불량 현상을 신속히 파악·분석해 수율을 안정화하고, 동일 불량의 재발을 막는 것.</div></div>
+          <div class="star-row"><div class="star-k">A <small>행동</small></div><div class="star-v"><ul>
+            <li>현장·필드 불량 현상을 직접 파악하고 증상 기반으로 불량 의심 부위를 신속 추론</li>
+            <li>공정 불량 원인을 선제적으로 해결해 동일 유형 재발 차단</li>
+            <li>불량 유형별 원인·대응을 정리한 불량 분석 백서 제작</li>
+          </ul></div></div>
+          <div class="star-row"><div class="star-k">R <small>성과</small></div><div class="star-v">공장 수율 안정화와 품질 리스크 최소화. 백서는 이후 유사 불량 대응의 참고 자료로 활용됐고, 개인적으로는 불량 분석 방법론을 체계화한 계기가 됐습니다.</div></div>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">수율 안정화</span><span class="tag">불량 분석</span><span class="tag">품질</span></div>
+    </div>
+
+    <!-- 프로젝트 5: 선행 개발 -->
+    <div class="card proj" data-cat="adv">
+      <div class="proj-head">
+        <h3>선행 개발 · 샘플 제작 프로젝트</h3>
+        <span class="period">2024.03 ~ 2024.10</span>
+      </div>
+      <p class="proj-sub">Local-Dimming · HUD · OLED · 구동보드 제작</p>
+      <p class="proj-summary">차세대 기술 선행 샘플의 제작과 평가를 담당하며 회로 제작·디버깅 실무 역량을 넓혔습니다.</p>
+      <div class="impact">✦ 12.3 / 14.6 / 17인치 Local-Dimming·HUD 선행 샘플 등 4건 제작·평가 완수</div>
+      <button class="star-toggle" aria-expanded="false"><span>상세 보기 — 수행 내용</span><span class="chev">▼</span></button>
+      <div class="star-panel">
+        <div class="star-grid">
+          <div class="star-row"><div class="star-k">A <small>수행</small></div><div class="star-v"><ul>
+            <li><b>12.3 / 14.6 / 17인치 선행 샘플</b> — Local-Dimming 및 HUD 선행 개발 샘플 제작 참여</li>
+            <li><b>전장용 발열체 선행 샘플</b> — 구동보드를 직접 제작·디버깅하고 발열 특성 평가</li>
+            <li><b>가정용 3.92인치 OLED</b> — 제품 평가·불량 분석으로 검사 프로그램 개선, 문제점 사전 검토</li>
+            <li><b>전장용 2.2인치 공조기 컨트롤러 데모</b> — 구동 프로그램 안정화로 데모 샘플 완성</li>
+          </ul></div></div>
+          <div class="star-row"><div class="star-k">R <small>성과</small></div><div class="star-v">설계–제작–평가를 짧은 주기로 반복하는 선행 과제 특성상, 회로 디버깅과 구동 환경 구축을 빠르게 수행하는 역량을 쌓았습니다.</div></div>
+        </div>
+      </div>
+      <div class="tags"><span class="tag">Local-Dimming</span><span class="tag">HUD</span><span class="tag">OLED</span><span class="tag">구동보드 제작</span></div>
+    </div>
+  </section>
+
   <!-- ===================== 핵심 역량 ===================== -->
-  <section id="skills">
+  <section id="skills" class="reveal">
     <h2>핵심 역량</h2>
+    <p class="sec-desc">하드웨어 검증 전문성과 AI 활용 능력을 함께 갖춘 것이 저의 차별점입니다.</p>
     <div class="grid3">
       <div class="card skill-card">
         <h3>HW 설계·검증</h3>
@@ -228,138 +487,41 @@
     </div>
   </section>
 
-  <!-- ===================== 대표 프로젝트: AI 자동화 ===================== -->
-  <section id="ai-tools">
-    <h2>대표 프로젝트 — AI 활용 업무 자동화</h2>
-    <div class="card featured">
-      <span class="featured-label">FEATURED</span>
-      <div class="proj-head">
-        <h3>측정 데이터 자동화 툴 5종 개발 · 부서 배포</h3>
-        <span class="period">2025 ~ 현재</span>
-      </div>
-      <p class="proj-sub">Python + LLM 활용 사내 업무 자동화</p>
-      <div class="proj-body">
-        <ul>
-          <li><b>문제</b> — 개발 단계(DV/PV) EVENT마다 측정 데이터의 정리·비교·시각화 작업이 수작업으로 반복되어, 엔지니어가 검증 본연의 업무에 쓸 시간이 부족했습니다.</li>
-          <li><b>접근</b> — Python과 LLM(Claude·ChatGPT·Gemini)을 활용해 데이터 정리, 분석·비교, 시각화를 자동화하는 툴 5종을 직접 개발하고 부서원에게 배포했습니다.</li>
-          <li><b>확산</b> — 경영진(CTO 참석 회의) 대상 시연 발표를 진행하고, 사용 매뉴얼과 함께 사내 배포를 추진했습니다. 단순 반복 업무는 요청 즉시 자동화 툴을 제작해 대응하고 있습니다.</li>
-          <!-- [수정 포인트] 각 툴의 이름/기능을 공개해도 된다면 아래 형식으로 추가하세요.
-          <li><b>툴 1 이름</b> — 어떤 업무를 어떻게 자동화했는지 한 줄 설명</li>
-          -->
-        </ul>
-      </div>
-      <div class="impact">✦ 1인당 월 약 8시간의 반복 업무 시간 단축 · 수작업 휴먼 에러 감소 · 데이터 양식 통일</div>
-      <div class="tags">
-        <span class="tag">Python</span><span class="tag">Claude Code</span><span class="tag">LLM</span>
-        <span class="tag">데이터 시각화</span><span class="tag">업무 자동화</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===================== HW 경력 프로젝트 ===================== -->
-  <section id="hw-projects">
-    <h2>HW 경력 프로젝트</h2>
-
-    <div class="card">
-      <div class="proj-head">
-        <h3>12.9인치 전장 AVN 디스플레이 개발 및 양산 이관</h3>
-        <span class="period">2025.01 ~ 현재</span>
-      </div>
-      <p class="proj-sub">하드웨어 주 담당자 · 국내 완성차 OEM향</p>
-      <div class="proj-body">
-        <ul>
-          <li>DV/PV 개발 단계별 EVENT를 주도적으로 대응하고, 변경점 발생 시마다 재검증 프로세스를 수행해 신뢰성 시험과 함께 제품 안정성을 확보했습니다.</li>
-          <li>광학 특성·전기적 특성·Fault 검출 기능을 검증하고, 제품 평가시트를 체계화해 개선점을 추적했습니다.</li>
-          <li>FW 변경 시마다 Fault 동작을 직접 검증해 발생 조건과 동작 상태를 파악하고, Tier 1에 가이드라인을 제공하며 기능안전 요구사항을 충족시켰습니다.</li>
-          <li>화면 분할, Ghost touch 등 복합 이슈 발생 시 부품과 시스템 측면을 종합해 근본 원인을 추론하고, 협력사와 합동 검증을 진행해 이슈를 신속히 종결했습니다.</li>
-        </ul>
-      </div>
-      <div class="impact">✦ 개발 초기부터 양산 이관까지 전장 개발 프로세스 전 과정 주도</div>
-      <div class="tags">
-        <span class="tag">전장 AVN</span><span class="tag">DV/PV</span><span class="tag">기능안전</span>
-        <span class="tag">Tier 1 협업</span><span class="tag">신뢰성 시험</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="proj-head">
-        <h3>전장 공조기 컨트롤러 파생 11개 모델 양산 이관</h3>
-        <span class="period">2023.05 ~ 2025.02</span>
-      </div>
-      <p class="proj-sub">양산 이관 · 불량 분석 및 개선</p>
-      <div class="proj-body">
-        <ul>
-          <li>기존 양산 모델의 파생 모델 총 11개를 양산 이관하며, 다수 모델을 병행 관리하는 프로세스를 체득했습니다.</li>
-          <li>검사 프로그램 개선으로 공정 사이클 타임(ST)을 단축해 생산성을 높였습니다.</li>
-          <li>모델별 불량 분석과 개선을 반복하며 증상 기반으로 의심 부위를 신속하게 추론하는 역량을 쌓았습니다.</li>
-        </ul>
-      </div>
-      <div class="impact">✦ 공정 ST 약 8% 단축으로 생산성 향상 · 11개 모델 이관 완수</div>
-      <div class="tags">
-        <span class="tag">양산 이관</span><span class="tag">공정 개선</span><span class="tag">다중 모델 관리</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="proj-head">
-        <h3>2세대 전장 디스플레이 양산 초기 공장 수율 안정화</h3>
-        <span class="period">2023.08 ~ 2023.11</span>
-      </div>
-      <p class="proj-sub">12.3인치 Cluster + 12.3인치 AVN · 불량 분석</p>
-      <div class="proj-body">
-        <ul>
-          <li>생산 현장과 필드에서 발생하는 양산 초기 불량 현상을 파악하고 불량 의심 부위를 신속하게 추론했습니다.</li>
-          <li>불량 분석 백서를 제작해 유형별 원인과 대응을 문서화했습니다.</li>
-          <li>공정 불량 원인을 선제적으로 해결해 공장 수율을 안정화하고 품질 리스크를 최소화했습니다.</li>
-        </ul>
-      </div>
-      <div class="tags">
-        <span class="tag">수율 안정화</span><span class="tag">불량 분석</span><span class="tag">품질</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="proj-head">
-        <h3>선행 개발 · 샘플 제작 프로젝트</h3>
-        <span class="period">2024.03 ~ 2024.10</span>
-      </div>
-      <p class="proj-sub">데모 · 선행 샘플 제작 및 평가</p>
-      <div class="proj-body">
-        <ul>
-          <li><b>12.3 / 14.6 / 17인치 선행 샘플</b> — Local-Dimming 및 HUD 선행 개발 샘플 제작에 참여했습니다.</li>
-          <li><b>전장용 발열체 선행 샘플</b> — 구동보드를 직접 제작·디버깅하고 발열 특성을 평가했습니다.</li>
-          <li><b>가정용 3.92인치 OLED</b> — 제품 평가와 불량 분석을 통해 검사 프로그램을 개선하고 문제점을 사전 검토했습니다.</li>
-          <li><b>전장용 2.2인치 공조기 컨트롤러 데모</b> — 구동 프로그램을 안정화해 데모 샘플을 완성했습니다.</li>
-        </ul>
-      </div>
-      <div class="tags">
-        <span class="tag">Local-Dimming</span><span class="tag">HUD</span><span class="tag">OLED</span><span class="tag">구동보드 제작</span>
-      </div>
-    </div>
-  </section>
-
   <!-- ===================== 경력 · 학력 · 자격 ===================== -->
-  <section id="career">
+  <section id="career" class="reveal">
     <h2>경력 · 학력 · 자격</h2>
     <div class="card">
-      <div class="info-row">
-        <div class="when">2023.05 ~ 재직 중</div>
-        <div class="what"><b>토비스 안양사업장 · 회로팀 주임연구원</b>
-          <span>전장 디스플레이 모듈(LCM) 제품 평가 · 불량 분석 · 양산 이관 · EVENT 대응</span>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-when">2025.01 ~ 현재</div>
+          <div class="tl-what">신규 전장 AVN 모델 하드웨어 주 담당 + AI 자동화 툴 개발·배포</div>
+          <div class="tl-desc">12.9인치 AVN DV/PV 검증·양산 이관 주도 · 자동화 툴 5종 부서 배포</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-when">2023.05 ~ 2025.02</div>
+          <div class="tl-what">토비스 안양사업장 · 회로팀 주임연구원 입사</div>
+          <div class="tl-desc">공조기 컨트롤러 11개 모델 양산 이관 · 수율 안정화 · 선행 샘플 제작</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-when">2016.03 ~ 2022.02</div>
+          <div class="tl-what">단국대학교 전자전기공학부 졸업</div>
+          <div class="tl-desc">학점 3.75/4.5 · 반도체·회로 과목 집중 이수 · 공정 이론/실습 외부교육 다수 수료 (나노기술연구협의회 · IDEC · 나노융합기술원)</div>
         </div>
       </div>
-      <div class="info-row">
-        <div class="when">2016.03 ~ 2022.02</div>
-        <div class="what"><b>단국대학교 전자전기공학부 졸업</b>
-          <span>학점 3.75 / 4.5 · 반도체·회로 전공 과목 집중 이수</span>
-        </div>
+      <div class="tags" style="margin-top:20px">
+        <span class="tag">파이썬프로그래밍활용능력 2급</span>
+        <span class="tag">OPIc IM1</span>
+        <span class="tag">TOEIC 805</span>
       </div>
-      <div class="info-row">
-        <div class="when">자격 · 어학</div>
-        <div class="what"><b>파이썬프로그래밍활용능력 2급 · OPIc IM1 · TOEIC 805</b>
-          <span>반도체 공정 이론·실습 교육 다수 수료 (나노기술연구협의회, IDEC, 나노융합기술원 등)</span>
-        </div>
-      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 연락 CTA ===================== -->
+  <section id="contact" class="reveal">
+    <div class="card cta-card">
+      <h2>함께 일하고 싶으시다면</h2>
+      <p>하드웨어 검증 경험과 AI 자동화 역량이 필요한 팀이라면, 편하게 연락 주세요.</p>
+      <a class="btn btn-primary" href="mailto:kkwy1026@naver.com">✉ kkwy1026@naver.com</a>
     </div>
   </section>
 
@@ -373,6 +535,111 @@
 </footer>
 
 <button class="print-btn" onclick="window.print()">🖨 PDF로 저장</button>
+
+<script>
+(function () {
+  "use strict";
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- 내비게이션: 스크롤 그림자 + 현재 섹션 하이라이트 ---------- */
+  var nav = document.getElementById("nav");
+  var links = Array.prototype.slice.call(document.querySelectorAll(".nav-link"));
+  function onScroll() {
+    nav.classList.toggle("scrolled", window.scrollY > 8);
+    var pos = window.scrollY + 90;
+    var current = "";
+    ["projects", "skills", "career", "contact"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.offsetTop <= pos) current = id;
+    });
+    links.forEach(function (a) {
+      a.classList.toggle("active", a.getAttribute("href") === "#" + current);
+    });
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- 스크롤 리빌 ---------- */
+  var revealEls = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window && !reduced) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("shown"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add("shown"); });
+  }
+
+  /* ---------- KPI 카운트업 ---------- */
+  function countUp(el) {
+    var to = parseInt(el.getAttribute("data-to"), 10);
+    if (reduced) { el.textContent = to; return; }
+    var dur = 900, start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
+      el.textContent = Math.round(to * eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var counts = document.querySelectorAll(".count");
+  if ("IntersectionObserver" in window) {
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); }
+      });
+    }, { threshold: 0.5 });
+    counts.forEach(function (el) { cio.observe(el); });
+  } else {
+    counts.forEach(function (el) { el.textContent = el.getAttribute("data-to"); });
+  }
+
+  /* ---------- STAR 펼침/접기 ---------- */
+  document.querySelectorAll(".star-toggle").forEach(function (btn) {
+    var panel = btn.nextElementSibling;
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!open));
+      if (open) {
+        panel.style.maxHeight = panel.scrollHeight + "px"; /* 현재 높이 고정 후 접기 */
+        requestAnimationFrame(function () { panel.style.maxHeight = "0"; });
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        panel.addEventListener("transitionend", function h() {
+          if (btn.getAttribute("aria-expanded") === "true") panel.style.maxHeight = "none";
+          panel.removeEventListener("transitionend", h);
+        });
+      }
+    });
+  });
+
+  /* ---------- 프로젝트 필터 ---------- */
+  var filterBtns = document.querySelectorAll(".filter-btn");
+  var projCards = document.querySelectorAll(".proj");
+  filterBtns.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      filterBtns.forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      var f = btn.getAttribute("data-filter");
+      projCards.forEach(function (card) {
+        var show = f === "all" || card.getAttribute("data-cat") === f;
+        card.classList.remove("appear");
+        if (show) {
+          card.classList.remove("hide");
+          void card.offsetWidth; /* 리플로우로 등장 애니메이션 재시작 */
+          card.classList.add("appear");
+        } else {
+          card.classList.add("hide");
+        }
+      });
+    });
+  });
+})();
+</script>
 
 </body>
 </html>
