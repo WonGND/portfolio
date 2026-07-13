@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비공개 섹션 암호화 도구 (소유자용)</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --bg: #f7f8fa; --surface: #fff; --text: #1a2233; --text-sub: #55637a;
+    --accent: #1d63d8; --accent-soft: #e8f0fd; --border: #e3e7ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #10141c; --surface: #181e29; --text: #e6eaf2; --text-sub: #9aa7bd;
+            --accent: #6ba3f5; --accent-soft: #1c2b45; --border: #27303f; }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+         background: var(--bg); color: var(--text); line-height: 1.65; padding: 40px 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  .desc { color: var(--text-sub); font-size: .9rem; margin-bottom: 24px; }
+  label { display: block; font-size: .85rem; font-weight: 700; margin: 16px 0 6px; }
+  input, textarea {
+    width: 100%; font-family: inherit; font-size: .92rem; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px;
+  }
+  textarea { min-height: 220px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  button {
+    margin-top: 18px; font-family: inherit; font-size: .92rem; font-weight: 700; cursor: pointer;
+    padding: 11px 22px; border-radius: 10px; border: none; background: var(--accent); color: #fff;
+  }
+  button:hover { filter: brightness(1.08); }
+  pre {
+    margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-size: .78rem; white-space: pre-wrap; word-break: break-all; display: none;
+  }
+  .steps { background: var(--accent-soft); border-radius: 10px; padding: 14px 18px; font-size: .86rem;
+           color: var(--text-sub); margin-top: 18px; }
+  .steps b { color: var(--text); }
+  .steps a { color: var(--accent); }
+  .err { color: #d64545; font-size: .85rem; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔐 비공개 섹션 암호화 도구</h1>
+  <p class="desc">소유자 전용 도구입니다. 입력한 내용은 어디로도 전송되지 않고 이 브라우저 안에서만 암호화됩니다.
+  결과 JSON을 <b>content/private.enc.json</b>에 붙여넣으면 자기소개서의 비공개 섹션이 갱신됩니다.
+  <b>같은 화면에서 암호 변경도 가능</b>합니다(새 암호로 다시 암호화하면 됨).</p>
+
+  <label>암호 (비공개 섹션을 열 때 사용할 암호)</label>
+  <input type="text" id="pass" placeholder="예: 나만-아는-문구-2026 (길수록 안전)">
+
+  <label>비공개 본문 (마크다운 — ## 제목, **굵게**, - 목록 사용 가능)</label>
+  <textarea id="md" placeholder="## 3. 이직 사유 및 지원 동기&#10;&#10;본문…"></textarea>
+
+  <button id="go">암호화 → JSON 생성</button>
+  <p class="err" id="err"></p>
+  <pre id="out"></pre>
+
+  <div class="steps" id="steps" style="display:none">
+    <b>다음 단계</b><br>
+    1. 위 JSON 전체를 복사<br>
+    2. <a id="edit-link" href="#" target="_blank" rel="noopener">GitHub에서 content/private.enc.json 열기</a> → 기존 내용을 전부 교체<br>
+    3. Commit changes → 1~2분 뒤 사이트 반영
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /* [수정 포인트] 저장소가 바뀌면 여기만 수정 */
+  var REPO = "WonGND/portfolio", BRANCH = "main", ENC_PATH = "content/private.enc.json";
+  document.getElementById("edit-link").href =
+    "https://github.com/" + REPO + "/edit/" + BRANCH + "/" + ENC_PATH;
+
+  function b64(buf) {
+    var bin = "", arr = new Uint8Array(buf);
+    for (var i = 0; i < arr.length; i++) bin += String.fromCharCode(arr[i]);
+    return btoa(bin);
+  }
+  document.getElementById("go").addEventListener("click", function () {
+    var pass = document.getElementById("pass").value;
+    var md = document.getElementById("md").value;
+    var err = document.getElementById("err");
+    err.textContent = "";
+    if (!pass || pass.length < 6) { err.textContent = "암호는 6자 이상으로 입력하세요."; return; }
+    if (!md.trim()) { err.textContent = "본문을 입력하세요."; return; }
+    if (!window.crypto || !crypto.subtle) { err.textContent = "이 브라우저에서는 사용할 수 없습니다 (https 필요)."; return; }
+    var enc = new TextEncoder();
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var iter = 150000;
+    crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveKey"])
+      .then(function (baseKey) {
+        return crypto.subtle.deriveKey(
+          { name: "PBKDF2", salt: salt, iterations: iter, hash: "SHA-256" },
+          baseKey, { name: "AES-GCM", length: 256 }, false, ["encrypt"]);
+      })
+      .then(function (key) { return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, enc.encode(md)); })
+      .then(function (ct) {
+        var json = JSON.stringify({
+          v: 1, kdf: "PBKDF2-SHA256", iter: iter,
+          salt: b64(salt), iv: b64(iv), data: b64(ct)
+        }, null, 2);
+        var out = document.getElementById("out");
+        out.textContent = json; out.style.display = "block";
+        document.getElementById("steps").style.display = "block";
+      })
+      .catch(function (e) { err.textContent = "암호화 실패: " + e; });
+  });
+})();
+</script>
+</body>
+</html>

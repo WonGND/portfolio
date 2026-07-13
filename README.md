@@ -9,10 +9,12 @@
 
 ```
 portfolio/
-├── index.html                # 포트폴리오 메인 (KPI · STAR 프로젝트 · 역량 · 경력)
+├── index.html                # 포트폴리오 메인 (KPI · 역량 육각형 · STAR 프로젝트 · 경력)
 ├── cover-letter.html         # 자기소개서 페이지 (틀 — 본문은 아래 md에서 로드)
+├── encrypt.html              # 비공개 섹션 암호화 도구 (소유자용, 링크 비노출)
 ├── content/
-│   └── cover-letter.md       # ★ 자기소개서 본문 (내용 수정은 이 파일만)
+│   ├── cover-letter.md       # ★ 자기소개서 본문 (내용 수정은 이 파일만)
+│   └── private.enc.json      # 비공개 섹션(이직 사유) 암호문 — 암호 없이는 읽을 수 없음
 └── .github/workflows/deploy-pages.yml  # main 푸시 시 gh-pages로 자동 배포
 ```
 
@@ -24,6 +26,11 @@ portfolio/
 - **자기소개서**: `content/cover-letter.md` 를 GitHub 웹 편집기(연필 아이콘)에서 수정 → Commit.
   마크다운 문법(`##` 제목, `**굵게**`, `-` 목록)만 알면 되고, `<!-- -->` 주석은 사이트에 표시되지 않습니다.
 - **포트폴리오 본문**: `index.html` 안의 `[수정 포인트]` 주석 위치를 수정.
+  역량 육각형 차트의 축·수치는 `index.html`의 `SKILLS` 배열에서 수정.
+- **비공개 섹션(이직 사유)**: 본문이 `content/private.enc.json`에 AES-256-GCM으로 암호화되어 있어
+  저장소가 public이어도 암호 없이는 읽을 수 없습니다. 수정/암호 변경은
+  사이트의 `/encrypt.html` 페이지에서: 새 암호+본문 입력 → 생성된 JSON을
+  `content/private.enc.json`에 붙여넣고 Commit. (내용은 브라우저 밖으로 전송되지 않음)
 - 커밋하면 1~2분 내 사이트에 자동 반영됩니다.
 
 ## 배포

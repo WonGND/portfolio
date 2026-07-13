@@ -107,6 +107,44 @@
   .md .load-error { color: var(--text-sub); font-size: .95rem; }
   .md .load-error a { color: var(--accent); }
 
+  /* 비공개(암호화) 섹션 */
+  .private-block {
+    border: 1.5px dashed var(--border); border-radius: 12px;
+    padding: 20px 22px; margin: 30px 0 14px;
+    background: var(--bg);
+    transition: border-color .25s ease;
+  }
+  .private-block.unlocked { border-style: solid; border-color: var(--accent); }
+  .private-block.unlocked .private-title { display: none; } /* 해제 후엔 본문 제목만 표시 */
+  .private-block.unlocked .private-content { margin-top: 0; }
+  .private-title { font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .private-desc { font-size: .84rem; color: var(--text-muted); margin: 6px 0 14px; }
+  .private-form { display: flex; gap: 8px; flex-wrap: wrap; }
+  .private-form input {
+    flex: 1 1 180px; font-family: inherit; font-size: .9rem;
+    padding: 9px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); outline: none;
+  }
+  .private-form input:focus { border-color: var(--accent); }
+  .private-form button {
+    font-family: inherit; font-size: .88rem; font-weight: 700; cursor: pointer;
+    padding: 9px 18px; border-radius: 10px; border: 1px solid var(--accent);
+    background: var(--accent); color: #fff;
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .private-form button:hover { filter: brightness(1.08); }
+  .private-form button:active { transform: scale(.96); }
+  .private-error { font-size: .82rem; color: #d64545; margin-top: 8px; display: none; }
+  .private-block.error { animation: shake .35s ease; }
+  .private-block.error .private-error { display: block; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-4px); }
+  }
+  .private-content { margin-top: 16px; }
+  @media (prefers-reduced-motion: reduce) { .private-block.error { animation: none; } }
+  @media print { .private-block:not(.unlocked) { display: none; } .private-form, .private-desc { display: none; } }
+
   footer {
     border-top: 1px solid var(--border); padding: 30px 0 46px;
     font-size: .85rem; color: var(--text-sub); text-align: center;
@@ -194,6 +232,19 @@
     md.split(/\r?\n/).forEach(function (raw) {
       var t = raw.trim(), m;
       if (!t) { flushPara(); closeList(); return; }
+      if ((m = t.match(/^\[\[private:(.+?)\]\]$/))) {
+        flushPara(); closeList();
+        out.push(
+          '<div class="private-block">' +
+          '<div class="private-title">🔒 ' + esc(m[1]) + ' <span style="font-size:.72rem;font-weight:600;color:var(--text-muted)">(소유자 전용)</span></div>' +
+          '<p class="private-desc">이 섹션은 암호화되어 있습니다. 암호를 입력하면 이 브라우저 안에서만 복호화되어 표시됩니다.</p>' +
+          '<div class="private-form"><input type="password" placeholder="암호 입력" aria-label="비공개 섹션 암호">' +
+          '<button type="button">열기</button></div>' +
+          '<p class="private-error">암호가 올바르지 않습니다.</p>' +
+          '<div class="private-content"></div>' +
+          '</div>');
+        return;
+      }
       if ((m = t.match(/^(#{1,3})\s+(.*)$/))) {
         flushPara(); closeList();
         var lv = m[1].length + 1; /* 페이지 h1 아래로 한 단계씩 내림 */
@@ -220,6 +271,7 @@
     .then(function (md) {
       box.innerHTML = renderMD(md);
       box.classList.add("loaded");
+      initPrivateBlocks();
     })
     .catch(function () {
       box.innerHTML =
@@ -227,6 +279,56 @@
         '<a href="https://github.com/' + REPO + '/blob/' + BRANCH + '/' + MD_PATH + '" target="_blank" rel="noopener">GitHub에서 원문 보기</a></p>';
       box.classList.add("loaded");
     });
+
+  /* ---------- 비공개(암호화) 섹션: WebCrypto로 브라우저에서만 복호화 ---------- */
+  var ENC_PATH = "content/private.enc.json";
+  function b64buf(s) {
+    var bin = atob(s), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return arr.buffer;
+  }
+  function decryptPrivate(pass) {
+    return fetch("./" + ENC_PATH, { cache: "no-cache" })
+      .then(function (r) { if (!r.ok) throw new Error("enc file"); return r.json(); })
+      .then(function (env) {
+        var enc = new TextEncoder();
+        return crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveKey"])
+          .then(function (baseKey) {
+            return crypto.subtle.deriveKey(
+              { name: "PBKDF2", salt: b64buf(env.salt), iterations: env.iter, hash: "SHA-256" },
+              baseKey, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+          })
+          .then(function (key) {
+            return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64buf(env.iv) }, key, b64buf(env.data));
+          })
+          .then(function (buf) { return new TextDecoder().decode(buf); });
+      });
+  }
+  function initPrivateBlocks() {
+    document.querySelectorAll(".private-block").forEach(function (block) {
+      var input = block.querySelector("input");
+      var btn = block.querySelector("button");
+      var content = block.querySelector(".private-content");
+      function tryUnlock() {
+        var pass = input.value;
+        if (!pass) return;
+        btn.disabled = true; btn.textContent = "확인 중…";
+        block.classList.remove("error");
+        decryptPrivate(pass).then(function (mdText) {
+          content.innerHTML = renderMD(mdText);
+          block.classList.add("unlocked");
+          block.querySelector(".private-form").style.display = "none";
+          block.querySelector(".private-desc").style.display = "none";
+        }).catch(function () {
+          block.classList.add("error");
+          btn.disabled = false; btn.textContent = "열기";
+          input.select();
+        });
+      }
+      btn.addEventListener("click", tryUnlock);
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") tryUnlock(); });
+    });
+  }
 })();
 </script>
 

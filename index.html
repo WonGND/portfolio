@@ -202,6 +202,26 @@
   .star-v li { padding-left: 14px; position: relative; margin-bottom: 5px; }
   .star-v li::before { content: "·"; position: absolute; left: 2px; color: var(--accent); font-weight: 800; }
 
+  /* ---------- 역량 육각형(레이더) 차트 ---------- */
+  .radar-card { margin-bottom: 16px; }
+  .radar-flex { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  .radar-svg-box { flex: 1 1 300px; min-width: 280px; }
+  .radar-svg-box svg { display: block; width: 100%; max-width: 500px; height: auto; margin: 0 auto; }
+  .radar-side { flex: 1 1 220px; min-width: 220px; }
+  .radar-side h3 { font-size: 1.02rem; color: var(--accent); margin-bottom: 10px; }
+  .radar-side p { font-size: .88rem; color: var(--text-sub); margin-bottom: 10px; }
+  .radar-legend { list-style: none; }
+  .radar-legend li {
+    display: flex; justify-content: space-between; gap: 10px;
+    font-size: .86rem; color: var(--text-sub); padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .radar-legend li:last-child { border-bottom: none; }
+  .radar-legend b { color: var(--text); font-weight: 700; }
+  .radar-note { font-size: .74rem; color: var(--text-muted); margin-top: 10px; }
+  #radar .vertex { transition: r .15s ease; cursor: default; }
+  #radar .vertex:hover { r: 7; }
+
   /* ---------- 역량 ---------- */
   .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   @media (max-width: 720px) { .grid3 { grid-template-columns: 1fr; } }
@@ -455,6 +475,21 @@
   <section id="skills" class="reveal">
     <h2>핵심 역량</h2>
     <p class="sec-desc">하드웨어 검증 전문성과 AI 활용 능력을 함께 갖춘 것이 저의 차별점입니다.</p>
+
+    <div class="card radar-card">
+      <div class="radar-flex">
+        <div class="radar-svg-box">
+          <svg id="radar" viewBox="0 0 520 430" role="img" aria-label="역량 육각형 차트"></svg>
+        </div>
+        <div class="radar-side">
+          <h3>역량 밸런스</h3>
+          <p>3년 3개월의 실무에서 쌓은 역량을 6개 축으로 자가진단한 결과입니다.</p>
+          <ul class="radar-legend" id="radar-legend"></ul>
+          <p class="radar-note">※ 자가진단 (100 = 독자적으로 업무를 주도하고 타인을 가이드할 수 있는 수준)</p>
+        </div>
+      </div>
+    </div>
+
     <div class="grid3">
       <div class="card skill-card">
         <h3>HW 설계·검증</h3>
@@ -622,6 +657,121 @@
       }
     });
   });
+
+  /* ---------- 역량 육각형(레이더) 차트 ---------- */
+  /* [수정 포인트] 역량 축 이름과 수치(0~100)는 이 배열만 고치면 됩니다 */
+  var SKILLS = [
+    { name: "측정·검증",     value: 90 },
+    { name: "불량 분석",     value: 88 },
+    { name: "양산 이관·공정", value: 85 },
+    { name: "협업·소통",     value: 80 },
+    { name: "AI·자동화",     value: 78 },
+    { name: "회로 도면 분석", value: 72 }
+  ];
+  (function buildRadar() {
+    var svg = document.getElementById("radar");
+    if (!svg) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var CX = 260, CY = 210, R = 148, N = SKILLS.length, MAX = 100;
+    function pt(i, ratio) {
+      var a = (Math.PI * 2 * i) / N - Math.PI / 2;
+      return [CX + Math.cos(a) * R * ratio, CY + Math.sin(a) * R * ratio];
+    }
+    function el(tag, attrs) {
+      var e = document.createElementNS(NS, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+    /* 배경 격자(20% 간격 링) + 축선 — 얇고 옅게 */
+    for (var ring = 1; ring <= 5; ring++) {
+      var pts = [];
+      for (var i = 0; i < N; i++) pts.push(pt(i, ring / 5).join(","));
+      svg.appendChild(el("polygon", {
+        points: pts.join(" "), fill: "none",
+        style: "stroke:var(--border)", "stroke-width": "1"
+      }));
+    }
+    for (var i = 0; i < N; i++) {
+      var v = pt(i, 1);
+      svg.appendChild(el("line", {
+        x1: CX, y1: CY, x2: v[0], y2: v[1],
+        style: "stroke:var(--border)", "stroke-width": "1"
+      }));
+    }
+    /* 축 라벨 + 수치 */
+    for (var i = 0; i < N; i++) {
+      var a = (Math.PI * 2 * i) / N - Math.PI / 2;
+      var lx = CX + Math.cos(a) * (R + 26), ly = CY + Math.sin(a) * (R + 26);
+      var anchor = Math.cos(a) > 0.3 ? "start" : (Math.cos(a) < -0.3 ? "end" : "middle");
+      var name = el("text", {
+        x: lx, y: ly, "text-anchor": anchor, "font-size": "14", "font-weight": "600",
+        style: "fill:var(--text-sub)", "font-family": "inherit"
+      });
+      name.textContent = SKILLS[i].name;
+      svg.appendChild(name);
+      var val = el("text", {
+        x: lx, y: ly + 17, "text-anchor": anchor, "font-size": "13", "font-weight": "700",
+        style: "fill:var(--text)", "font-family": "inherit"
+      });
+      val.textContent = SKILLS[i].value;
+      svg.appendChild(val);
+    }
+    /* 데이터 다각형 + 꼭짓점 (스크롤 진입 시 중심에서 펼쳐지는 애니메이션) */
+    var poly = el("polygon", {
+      style: "fill:var(--accent);stroke:var(--accent)",
+      "fill-opacity": ".12", "stroke-width": "2", "stroke-linejoin": "round"
+    });
+    svg.appendChild(poly);
+    var dots = SKILLS.map(function (s, i) {
+      var c = el("circle", {
+        r: "4.5", "class": "vertex",
+        style: "fill:var(--accent);stroke:var(--surface)", "stroke-width": "2"
+      });
+      var tip = document.createElementNS(NS, "title");
+      tip.textContent = s.name + " — " + s.value + " / " + MAX;
+      c.appendChild(tip);
+      svg.appendChild(c);
+      return c;
+    });
+    function paint(progress) {
+      var pts = [];
+      for (var i = 0; i < N; i++) {
+        var p = pt(i, (SKILLS[i].value / MAX) * progress);
+        pts.push(p.join(","));
+        dots[i].setAttribute("cx", p[0]);
+        dots[i].setAttribute("cy", p[1]);
+      }
+      poly.setAttribute("points", pts.join(" "));
+    }
+    var played = false;
+    function play() {
+      if (played) return;
+      played = true;
+      if (reduced) { paint(1); return; }
+      var dur = 1000, start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        paint(1 - Math.pow(1 - p, 3)); /* easeOutCubic */
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    paint(reduced ? 1 : 0.001);
+    if ("IntersectionObserver" in window && !reduced) {
+      new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (e) { if (e.isIntersecting) { play(); obs.disconnect(); } });
+      }, { threshold: 0.35 }).observe(svg);
+    } else { play(); }
+    window.addEventListener("beforeprint", function () { played = true; paint(1); });
+    /* 우측 범례 */
+    var legend = document.getElementById("radar-legend");
+    if (legend) SKILLS.forEach(function (s) {
+      var li = document.createElement("li");
+      li.innerHTML = "<span>" + s.name + "</span><b>" + s.value + "</b>";
+      legend.appendChild(li);
+    });
+  })();
 
   /* ---------- 프로젝트 필터 ---------- */
   var filterBtns = document.querySelectorAll(".filter-btn");
